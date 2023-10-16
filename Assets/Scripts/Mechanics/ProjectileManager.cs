@@ -32,12 +32,15 @@ public class ProjectileManager : MonoBehaviour
     private float pullDistanceY;
     private float pullDistance; //Hypoteneuse 
 
-    private float initialVelocity; 
-    private float maxInitialVelocity;
+    private float initialVelocity;
+    private float initialVelocityX;
+    private float initialVelocityY;
+    private float maxInitialVelocity = 0.5f;
     private float gravity = 9.81f;
     private float angle; 
 
     private bool isDragging = false;
+    private bool isReleased = true;
 
 
 
@@ -55,17 +58,55 @@ public class ProjectileManager : MonoBehaviour
         Displacement = Distance between enemy penguin and player
      
      */
+    private void CalculateAngle()
+    {
+        angle = Mathf.Atan(initialVelocityY / initialVelocityX); 
+
+    }
+
     private void CalculateMotion()
     {
-        if (!isDragging)
+        if (!isDragging && isReleased)
         {
-            //transform.position.y = 
+            // Calculate the angle based on the initial velocity components
+            CalculateAngle();
+            initialVelocityX = DistanceToX * maxInitialVelocity;
+            initialVelocityY = DistanceToY * maxInitialVelocity;
+
+            // Set the initial position
+            Vector3 position = transform.position;
+
+            // Calculate the vertical component of the motion
+            float verticalComponent = (initialVelocityY * initialVelocityY * Mathf.Sin(2 * angle)) / gravity;
+
+            // Calculate the time of flight (time until the projectile hits the ground)
+            float timeOfFlight = (2 * verticalComponent) / gravity;
+
+            
+
+            // Simulate motion by updating the position over time
+            float timeElapsed = 0.0f;
+            while (timeElapsed <= timeOfFlight)
+            {
+                float x = initialVelocityX * timeElapsed;
+                float y = initialVelocityY * timeElapsed - 0.5f * gravity * timeElapsed * timeElapsed;
+
+                // Update the position
+                position = new Vector3(x, y, 0);
+
+                // Increment time elapsed
+                timeElapsed += Time.fixedDeltaTime;
+
+                // Set the new position
+                transform.position = position;
+            }
         }
     }
 
 
     private void Start()
     {
+        isReleased = false; 
 
         rb = GetComponent<Rigidbody2D>();
         //SetProjectileScale();
@@ -73,14 +114,22 @@ public class ProjectileManager : MonoBehaviour
 
     private void CalculateDistanceToRegion()
     {
+        //This is the percentage of the power that will be used on the cannonball 
         DistanceToX = EndRegion.position.x - transform.position.x;   
-        DistanceToY = EndRegion.position.y - transform.position.y; 
+        DistanceToY = EndRegion.position.y - transform.position.y;
 
-        DistanceToRegion = Mathf.Sqrt(Mathf.Pow(DistanceToX,2) + Mathf.Pow(DistanceToY,2)); 
+        if (DistanceToX > 1.0f) DistanceToX = 1.0f;
+        if (DistanceToY < 0.0f) DistanceToY = 0.0f;
 
+        //MAY NOT NEED, but its the hypoteneuse 
+        /*
+        DistanceToRegion = Mathf.Sqrt(Mathf.Pow(DistanceToX, 2) + Mathf.Pow(DistanceToY, 2));
         if (DistanceToRegion > 1.0f) DistanceToRegion = 1.0f; 
         if (DistanceToRegion < 0.0f) DistanceToRegion = 0.0f; 
+        */ 
     }
+
+    /*
     private void SetPullDistance()
     {
         if (!isDragging)
@@ -90,14 +139,8 @@ public class ProjectileManager : MonoBehaviour
         }
 
         pullDistance = Mathf.Sqrt(Mathf.Pow(pullDistanceX, 2) + Mathf.Pow(pullDistanceY, 2));   
-    }
-
-
-    private void SetInitialVelocity()
-    {
-        initialVelocity = maxInitialVelocity * DistanceToRegion;  
-    }
-    
+    } 
+    */
 
     private void SetProjectileScale()
     {
@@ -124,24 +167,53 @@ public class ProjectileManager : MonoBehaviour
     private void OnMouseUp()
     {
         isDragging = false;
-        rb.velocity = Vector2.zero;  
+        isReleased = true; 
+        //rb.velocity = Vector2.zero;  
         slingshotRegion.SetActive(false); 
     }
 
     private void Update()
     {
-        slingshotRegion.SetActive(isDragging); 
+        slingshotRegion.SetActive(isDragging);
 
         if (isDragging)
         {
             CalculateDistanceToRegion();
-            SetPullDistance();
-            Debug.Log(DistanceToRegion); 
+            Debug.Log("X: " + DistanceToX);
+            Debug.Log("Y: " + DistanceToY);
         }
-        else
+
+        if (Input.GetMouseButtonDown(0)) // Check for mouse button down (0 for left mouse button).
         {
-            SetInitialVelocity(); 
+            // Player starts dragging the projectile.
+            isDragging = true;
+            offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
         }
-        
+
+        if (Input.GetMouseButtonUp(0)) // Check for mouse button up (0 for left mouse button).
+        {
+            // Player releases the projectile.
+            isDragging = false;
+            isReleased = true;
+
+            // Calculate initial velocity based on DistanceToX and DistanceToY (with negative signs).
+            initialVelocityX = DistanceToX * maxInitialVelocity;
+            initialVelocityY = DistanceToY * maxInitialVelocity;
+
+            // Apply this velocity to the rigid body to launch the projectile.
+            rb.velocity = new Vector2(initialVelocityX, initialVelocityY);
+
+            // Set the slingshot region inactive after the release.
+            slingshotRegion.SetActive(false);
+        }
+ 
+
+        if (isDragging)
+        {
+            // Update the position of the projectile while the player is dragging.
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            rb.velocity = (mousePos + offset - transform.position) * 10;
+        }
     }
+
 }
