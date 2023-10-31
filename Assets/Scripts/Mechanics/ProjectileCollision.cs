@@ -11,7 +11,10 @@ public class ProjectileCollision : MonoBehaviour
         {
             Destroy(collision.gameObject);
         }
-
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            Destroy(gameObject); 
+        }
         else
         {
             StartCoroutine(DestroyObjectAfterDelay(2.0f));  

@@ -4,64 +4,99 @@ using UnityEngine;
 
 public class LaunchManager : MonoBehaviour
 {
-
-    [SerializeField] Transform projectile;
+    [SerializeField] Transform projectilePrefab;
     [SerializeField] Transform spawnPoint;
     [SerializeField] LineRenderer lineRenderer;
-
+    [SerializeField] GameObject line;
     [SerializeField] float launchForce = 1.5f;
-    [SerializeField] float trajectoryTimeStep = 0.05f;
     [SerializeField] int trajectoryStepCount = 15;
+    [SerializeField] float gravity = 9.81f;
 
-    [SerializeField]  Vector2 velocity;
-    [SerializeField]  Vector2 startMousPos;
-    [SerializeField]  Vector2 currentMousePos;  
-    // Start is called before the first frame update
+    private List<Vector3> trajectoryPoints;
+    private Vector3 launchDirection;
+    private bool isAiming = false;
+
     void Start()
     {
-        
+        lineRenderer.positionCount = trajectoryStepCount;
+        trajectoryPoints = new List<Vector3>();
+        line.SetActive(false);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            startMousPos = Camera.main.ScreenToWorldPoint(Input.mousePosition); 
+            isAiming = true;
+            line.SetActive(true);
+            trajectoryPoints.Clear();
         }
 
-        if (Input.GetMouseButton(0)) 
+        if (isAiming)
         {
-            currentMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            velocity = (startMousPos - currentMousePos) * launchForce;
+            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            launchDirection = (mousePosition - spawnPoint.position).normalized;
 
-            DrawTrajectory(); 
+            if (Input.GetMouseButtonUp(0))
+            {
+                LaunchProjectile();
+                isAiming = false;
+                ClearTrajectory();
+            }
+            else
+            {
+                DrawTrajectory();
+            }
         }
-
-        if (Input.GetMouseButtonUp(0))
+        else
         {
-            FireProjectile(); 
+            trajectoryPoints.Clear();
         }
     }
+
 
     void DrawTrajectory()
     {
-        Vector3[] positions = new Vector3[trajectoryStepCount];  
-        for (int i = 0; i < trajectoryStepCount; i++)
+        trajectoryPoints.Clear();
+
+        Vector3 currentPosition = spawnPoint.position;
+
+        for (int i = 0; i < 5; i++)
         {
-            float t = i * trajectoryTimeStep;
-            Vector3 pos = (Vector2)spawnPoint.position + velocity * t + 0.5f * Physics2D.gravity * t * t;
-
-            positions[i] = pos; 
-
+            float t = i / (float)(trajectoryStepCount - 1);
+            float x = currentPosition.x + launchDirection.x * launchForce * t;
+            float y = currentPosition.y + launchDirection.y * launchForce * t - 0.5f * gravity * t * t;
+            trajectoryPoints.Add(new Vector3(x, y, 0));
         }
-        lineRenderer.positionCount = trajectoryStepCount; 
-        lineRenderer.SetPositions(positions); 
+
+        lineRenderer.positionCount = trajectoryPoints.Count;
+        lineRenderer.SetPositions(trajectoryPoints.ToArray());
     }
 
-    void FireProjectile()
+
+    void ClearTrajectory()
     {
-        Transform pr = Instantiate(projectile, spawnPoint.position, Quaternion.identity); 
-        pr.GetComponent<Rigidbody2D>().velocity = velocity;
+        lineRenderer.positionCount = 0;
+    }
+
+    void LaunchProjectile()
+    {
+        Transform pr = Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity);
+        // Calculate the velocity based on the launch direction and force
+        Vector2 velocity = launchDirection * launchForce;
+
+        // Move the projectile
+        StartCoroutine(MoveProjectile(pr, velocity));
+    }
+
+    IEnumerator MoveProjectile(Transform projectile, Vector2 velocity)
+    {
+        while (projectile != null)
+        {
+            velocity.y -= gravity * Time.deltaTime; 
+            Vector3 newPosition = projectile.position + new Vector3(velocity.x, velocity.y, 0) * Time.deltaTime;
+            projectile.position = newPosition;
+            yield return null;
+        }
     }
 }
