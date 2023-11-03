@@ -15,6 +15,7 @@ public class LaunchManager : MonoBehaviour
     private List<Vector3> trajectoryPoints;
     private Vector3 launchDirection;
     private bool isAiming = false;
+    private bool onGround = false;   
 
     void Start()
     {
@@ -35,7 +36,7 @@ public class LaunchManager : MonoBehaviour
         if (isAiming)
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            launchDirection = (mousePosition - spawnPoint.position).normalized;
+            launchDirection = (mousePosition - spawnPoint.position).normalized; //  Initial velocity 
 
             if (Input.GetMouseButtonUp(0))
             {
@@ -64,7 +65,7 @@ public class LaunchManager : MonoBehaviour
         for (int i = 0; i < 5; i++)
         {
             float t = i / (float)(trajectoryStepCount - 1);
-            float x = currentPosition.x + launchDirection.x * launchForce * t;
+            float x = currentPosition.x + launchDirection.x * launchForce * t; 
             float y = currentPosition.y + launchDirection.y * launchForce * t - 0.5f * gravity * t * t;
             trajectoryPoints.Add(new Vector3(x, y, 0));
         }
@@ -81,7 +82,7 @@ public class LaunchManager : MonoBehaviour
 
     void LaunchProjectile()
     {
-        Transform pr = Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity);
+        Transform pr = Instantiate(projectilePrefab, spawnPoint.position,spawnPoint.rotation);
         // Calculate the velocity based on the launch direction and force
         Vector2 velocity = launchDirection * launchForce;
 
@@ -93,10 +94,31 @@ public class LaunchManager : MonoBehaviour
     {
         while (projectile != null)
         {
-            velocity.y -= gravity * Time.deltaTime; 
+            if (!onGround) // Check if the projectile hasn't hit the ground yet
+            {
+                velocity.y -= gravity * Time.deltaTime;
+            }
+            else
+            {
+                velocity.y = 0; // Stop further vertical movement when on the ground
+            }
+
             Vector3 newPosition = projectile.position + new Vector3(velocity.x, velocity.y, 0) * Time.deltaTime;
             projectile.position = newPosition;
+
             yield return null;
         }
+    }
+
+
+
+    public void SetOnGround(bool grounded)
+    {
+        onGround = grounded; 
+    }
+
+    public bool GetOnGround()
+    {
+        return onGround; 
     }
 }

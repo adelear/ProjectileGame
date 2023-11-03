@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ProjectileCollision : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField] LaunchManager launchManager; 
     public void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Enemy")) 
@@ -13,10 +13,12 @@ public class ProjectileCollision : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("Ground"))
         {
-            Destroy(gameObject); 
+            launchManager.SetOnGround(true); 
+            StartCoroutine(DestroyObjectAfterDelay(2.0f));  
         }
         else
         {
+            launchManager.SetOnGround(false);
             StartCoroutine(DestroyObjectAfterDelay(2.0f));  
         }
     }
