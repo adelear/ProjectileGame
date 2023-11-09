@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2345133207020986617}
   - component: {fileID: 3040709723866608878}
   - component: {fileID: 4164861033608994494}
+  - component: {fileID: 8952281617724863316}
   m_Layer: 3
   m_Name: Enemy
   m_TagString: Enemy
@@ -119,10 +120,10 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.5791298}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.5, y: 0}
     oldSize: {x: 1.2, y: 1.3}
     newSize: {x: 1.2, y: 1.3}
     adaptiveTilingThreshold: 0.5
@@ -130,7 +131,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.3}
+  m_Size: {x: 1.2, y: 1.4590027}
   m_EdgeRadius: 0
 --- !u!50 &3040709723866608878
 Rigidbody2D:
@@ -171,3 +172,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c75d4e68b6e302a4bb235c5c33ec9419, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyAudio: {fileID: 5656872033233902260, guid: ba6b49eef7736c24e9fd0a8ea7cc97c1, type: 3}
+--- !u!95 &8952281617724863316
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2381430057257831341}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 812e358c9fdaeb74889f7f540bbfbdf2, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

@@ -11,6 +11,8 @@ public class LaunchManager : MonoBehaviour
     [SerializeField] float launchForce = 1.5f;
     [SerializeField] int trajectoryStepCount = 15;
     [SerializeField] float gravity = 9.81f;
+    [SerializeField] AudioManager asm;
+    [SerializeField] AudioClip throwSnowball; 
 
     private List<Vector3> trajectoryPoints;
     private Vector3 launchDirection;
@@ -36,7 +38,9 @@ public class LaunchManager : MonoBehaviour
         if (isAiming)
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            launchDirection = (mousePosition - spawnPoint.position).normalized; //  Initial velocity 
+            launchDirection = (mousePosition - spawnPoint.position).normalized; //  Initial velocity will rely on launch direction when comparing to the spawnpoint of the projectile
+            //closer to spawnpoint essentially means theres a smaller initial velocity
+            //the further you are away from the spawn point, the greater your velocity is 
 
             if (Input.GetMouseButtonUp(0))
             {
@@ -46,6 +50,7 @@ public class LaunchManager : MonoBehaviour
             }
             else
             {
+                //When mouse button is held down, the direction of where the player is aiming will be displayed 
                 DrawTrajectory();
             }
         }
@@ -61,12 +66,15 @@ public class LaunchManager : MonoBehaviour
         trajectoryPoints.Clear();
 
         Vector3 currentPosition = spawnPoint.position;
+        Vector2 currentVelocity = launchDirection * launchForce;
 
-        for (int i = 0; i < 5; i++)
+        //It will only show the first 2 points of the trajectory to make it a bit more difficult
+        for (int i = 0; i < 2; i++)
         {
-            float t = i / (float)(trajectoryStepCount - 1);
-            float x = currentPosition.x + launchDirection.x * launchForce * t; 
-            float y = currentPosition.y + launchDirection.y * launchForce * t - 0.5f * gravity * t * t;
+            float t = i * 0.1f; 
+            float x = currentPosition.x + currentVelocity.x * t; // x = x0 + v0 * t  = horizontal component 
+            float y = currentPosition.y + currentVelocity.y * t - 0.5f * gravity * t * t; // y = y0 + (v0)(t) - (1/2)(a)(t^2)  = vertical component 
+   
             trajectoryPoints.Add(new Vector3(x, y, 0));
         }
 
@@ -83,10 +91,9 @@ public class LaunchManager : MonoBehaviour
     void LaunchProjectile()
     {
         Transform pr = Instantiate(projectilePrefab, spawnPoint.position,spawnPoint.rotation);
-        // Calculate the velocity based on the launch direction and force
+        // Calculating velocity based on the launch direction and force
         Vector2 velocity = launchDirection * launchForce;
-
-        // Move the projectile
+        asm.PlayOneShot(throwSnowball, false); 
         StartCoroutine(MoveProjectile(pr, velocity));
     }
 
@@ -96,15 +103,19 @@ public class LaunchManager : MonoBehaviour
         {
             if (!onGround) // Check if the projectile hasn't hit the ground yet
             {
-                velocity.y -= gravity * Time.deltaTime;
+                velocity.y -= gravity * Time.deltaTime; // Gravity taking an effect to the vertical component until it hits the ground
             }
             else
             {
-                velocity.y = 0; // Stop further vertical movement when on the ground
+                velocity.y = 0; // Stopp further vertical movement when on ground
             }
 
-            Vector3 newPosition = projectile.position + new Vector3(velocity.x, velocity.y, 0) * Time.deltaTime;
-            projectile.position = newPosition;
+
+            Vector3 newPosition = projectile.position + new Vector3(velocity.x, velocity.y, 0) * Time.deltaTime; // im taking the current position of the projectile
+            projectile.position = newPosition;  // and adding the displacement vector. which is determined by the horizontal and vertical component of the velocity
+            // multiplied by the time between frames
+
+            // line 116 updates the position of the projectile to the calculated one
 
             yield return null;
         }

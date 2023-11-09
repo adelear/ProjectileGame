@@ -73,18 +73,18 @@ public class ProjectileManager : MonoBehaviour
             initialVelocityX = DistanceToX * maxInitialVelocity;
             initialVelocityY = DistanceToY * maxInitialVelocity;
 
-            // Set the initial position
+            // Setting initial position
             Vector3 position = transform.position;
 
-            // Calculate the vertical component of the motion
+            // vertical component 
             float verticalComponent = (initialVelocityY * initialVelocityY * Mathf.Sin(2 * angle)) / gravity;
 
-            // Calculate the time of flight (time until the projectile hits the ground)
+            // time of flight  i dont think i need
             float timeOfFlight = (2 * verticalComponent) / gravity;
 
             
 
-            // Simulate motion by updating the position over time
+            // Motion 
             float timeElapsed = 0.0f;
             while (timeElapsed <= timeOfFlight)
             {
@@ -183,34 +183,27 @@ public class ProjectileManager : MonoBehaviour
             Debug.Log("Y: " + DistanceToY);
         }
 
-        if (Input.GetMouseButtonDown(0)) // Check for mouse button down (0 for left mouse button).
+        if (Input.GetMouseButtonDown(0)) 
         {
             // Player starts dragging the projectile.
             isDragging = true;
             offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
         }
 
-        if (Input.GetMouseButtonUp(0)) // Check for mouse button up (0 for left mouse button).
+        if (Input.GetMouseButtonUp(0)) 
         {
             // Player releases the projectile.
             isDragging = false;
             isReleased = true;
-
-            // Calculate initial velocity based on DistanceToX and DistanceToY (with negative signs).
             initialVelocityX = DistanceToX * maxInitialVelocity;
             initialVelocityY = DistanceToY * maxInitialVelocity;
-
-            // Apply this velocity to the rigid body to launch the projectile.
             rb.velocity = new Vector2(initialVelocityX, initialVelocityY);
-
-            // Set the slingshot region inactive after the release.
             slingshotRegion.SetActive(false);
         }
  
 
         if (isDragging)
         {
-            // Update the position of the projectile while the player is dragging.
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             rb.velocity = (mousePos + offset - transform.position) * 10;
         }

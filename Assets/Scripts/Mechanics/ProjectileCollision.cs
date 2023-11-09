@@ -4,28 +4,40 @@ using UnityEngine;
 
 public class ProjectileCollision : MonoBehaviour
 {
-    [SerializeField] LaunchManager launchManager; 
+    [SerializeField] LaunchManager launchManager;
+    [SerializeField] float knockbackDistance = 1.0f; 
+
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Enemy")) 
+        if (collision.gameObject.CompareTag("Enemy"))
         {
-            Destroy(collision.gameObject);
+            Enemies enemy = collision.gameObject.GetComponent<Enemies>();
+            enemy.GetComponent<Animator>().SetTrigger("EnemyHit");  
+            enemy.HitBySnowball();
+            KnockbackEnemy(collision.transform);
+            Destroy(gameObject);
         }
-        if (collision.gameObject.CompareTag("Ground"))
+        else if (collision.gameObject.CompareTag("Ground"))
         {
-            launchManager.SetOnGround(true); 
-            StartCoroutine(DestroyObjectAfterDelay(2.0f));  
+            Destroy(gameObject);
         }
         else
         {
             launchManager.SetOnGround(false);
-            StartCoroutine(DestroyObjectAfterDelay(2.0f));  
+            StartCoroutine(DestroyObjectAfterDelay(2.0f));
         }
     }
 
-    IEnumerator DestroyObjectAfterDelay(float delay) 
+    IEnumerator DestroyObjectAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        Destroy(gameObject); 
-    } 
+        Destroy(gameObject);
+    }
+
+    private void KnockbackEnemy(Transform enemyTransform)
+    {
+        Vector2 knockbackDirection = (enemyTransform.position - transform.position).normalized;
+        Vector2 knockbackPosition = (Vector2)enemyTransform.position + knockbackDirection * knockbackDistance;
+        enemyTransform.position = knockbackPosition;
+    }
 }

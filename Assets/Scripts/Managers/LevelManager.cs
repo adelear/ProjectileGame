@@ -43,9 +43,6 @@ public class LevelManager : MonoBehaviour
         else
         {
             currentTime += Time.deltaTime;
-
-            // Move the SpawnEnemies logic from Start to Update
-            // This will ensure that enemies continue to spawn at regular intervals.
             SpawnEnemies();
         } 
     }
@@ -54,34 +51,30 @@ public class LevelManager : MonoBehaviour
     {
         if (currentLevel == 1)
         {
-            currentWaveEnemyCount = 5; // Set the initial number of enemies for the first level.
+            currentWaveEnemyCount = 5; // Setting initial number of enemies for the first level.
         }
         else
         {
-            int previousEnemyCount = currentWaveEnemyCount; // Store the previous enemy count.
+            int previousEnemyCount = currentWaveEnemyCount; // Storing previous enemy count.
 
             // Calculate the new enemy count based on the previous count and current level.
             currentWaveEnemyCount = previousEnemyCount + (currentLevel * 5);
         }
 
-        timeBetweenEnemies = 5.0f; // Reset time between enemies for each level.
-        currentLevel++; // Increase the level for the next wave.
+        timeBetweenEnemies = 5.0f; // Reseting time between enemies for each level.
+        currentLevel++;
     }
 
 
     private bool PlayerWinsLevel()
     {
-        // Check if all enemies have been destroyed
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy"); // Assuming enemies have a "Enemy" tag
-
-        // Check if all enemies have been spawned
+        // Checking if all enemies have been destroyed
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy"); 
+        // Checking if all enemies have been spawned
         bool allEnemiesSpawned = currentWaveEnemyCount == 0;
-
-        // If there are no enemies in the scene and all have been spawned, the player wins
+        // If there are no enemies in the scene and all have been spawned, the player moves on to next round
         return allEnemiesSpawned && enemies.Length == 0;
     }
-
-
 
     private void SpawnEnemies()
     {

@@ -186,7 +186,7 @@ Rigidbody2D:
   m_UseAutoMass: 0
   m_Mass: 0.0001
   m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_GravityScale: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -247,3 +247,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   launchManager: {fileID: 4841827102913835098, guid: fdc98a654935e7241836fa8e098a29aa, type: 3}
+  knockbackDistance: 1
