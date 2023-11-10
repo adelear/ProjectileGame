@@ -103,9 +103,12 @@ MonoBehaviour:
   spawnPoint: {fileID: 4875213208146917120}
   lineRenderer: {fileID: 5686275515426978636, guid: d5fdfa541712bc04e9f501c715b39d61, type: 3}
   line: {fileID: 498841527373131271}
-  launchForce: 15
+  launchForce: 0.5
+  maxDistance: 10
   trajectoryStepCount: 15
   gravity: 9.81
+  asm: {fileID: 0}
+  throwSnowball: {fileID: 0}
 --- !u!1 &1432766339296656850
 GameObject:
   m_ObjectHideFlags: 0

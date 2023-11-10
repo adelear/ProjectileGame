@@ -1533,6 +1533,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2017112853}
     - target: {fileID: 4841827102913835098, guid: fdc98a654935e7241836fa8e098a29aa, type: 3}
+      propertyPath: launchForce
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4841827102913835098, guid: fdc98a654935e7241836fa8e098a29aa, type: 3}
+      propertyPath: maxDistance
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4841827102913835098, guid: fdc98a654935e7241836fa8e098a29aa, type: 3}
       propertyPath: lineRenderer
       value: 
       objectReference: {fileID: 384951473}
@@ -1540,6 +1548,10 @@ PrefabInstance:
       propertyPath: throwSnowball
       value: 
       objectReference: {fileID: 8300000, guid: 67cf0faee4f60c349983c01bca98b6d7, type: 3}
+    - target: {fileID: 4841827102913835098, guid: fdc98a654935e7241836fa8e098a29aa, type: 3}
+      propertyPath: currentLaunchForce
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -8,16 +8,19 @@ public class LaunchManager : MonoBehaviour
     [SerializeField] Transform spawnPoint;
     [SerializeField] LineRenderer lineRenderer;
     [SerializeField] GameObject line;
-    [SerializeField] float launchForce = 1.5f;
+    [SerializeField] float launchForce = 10f;
+    [SerializeField] float maxDistance = 100f; 
     [SerializeField] int trajectoryStepCount = 15;
     [SerializeField] float gravity = 9.81f;
     [SerializeField] AudioManager asm;
     [SerializeField] AudioClip throwSnowball; 
 
+
     private List<Vector3> trajectoryPoints;
     private Vector3 launchDirection;
     private bool isAiming = false;
-    private bool onGround = false;   
+    private bool onGround = false;
+    float currentLaunchForce; 
 
     void Start()
     {
@@ -28,6 +31,7 @@ public class LaunchManager : MonoBehaviour
 
     void Update()
     {
+        
         if (Input.GetMouseButtonDown(0))
         {
             isAiming = true;
@@ -38,9 +42,14 @@ public class LaunchManager : MonoBehaviour
         if (isAiming)
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            launchDirection = (mousePosition - spawnPoint.position).normalized; //  Initial velocity will rely on launch direction when comparing to the spawnpoint of the projectile
+            // max - min power 
+            // do a way that takes the mouse position in mind that does a PERCENTAGE of the launch force
+            launchDirection = (mousePosition - spawnPoint.position); //  Initial velocity will rely on launch direction when comparing to the spawnpoint of the projectile
             //closer to spawnpoint essentially means theres a smaller initial velocity
             //the further you are away from the spawn point, the greater your velocity is 
+            float distancePercentage = Vector3.Distance(spawnPoint.position, mousePosition) / maxDistance; 
+            currentLaunchForce = launchForce * Mathf.Clamp01(distancePercentage); 
+
 
             if (Input.GetMouseButtonUp(0))
             {
@@ -58,6 +67,7 @@ public class LaunchManager : MonoBehaviour
         {
             trajectoryPoints.Clear();
         }
+        Debug.Log(currentLaunchForce);
     }
 
 
@@ -66,7 +76,7 @@ public class LaunchManager : MonoBehaviour
         trajectoryPoints.Clear();
 
         Vector3 currentPosition = spawnPoint.position;
-        Vector2 currentVelocity = launchDirection * launchForce;
+        Vector2 currentVelocity = launchDirection * currentLaunchForce;
 
         //It will only show the first 2 points of the trajectory to make it a bit more difficult
         for (int i = 0; i < 2; i++)
@@ -92,7 +102,7 @@ public class LaunchManager : MonoBehaviour
     {
         Transform pr = Instantiate(projectilePrefab, spawnPoint.position,spawnPoint.rotation);
         // Calculating velocity based on the launch direction and force
-        Vector2 velocity = launchDirection * launchForce;
+        Vector2 velocity = launchDirection * currentLaunchForce;
         asm.PlayOneShot(throwSnowball, false); 
         StartCoroutine(MoveProjectile(pr, velocity));
     }
